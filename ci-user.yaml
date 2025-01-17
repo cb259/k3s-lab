@@ -1,0 +1,16 @@
+#cloud-config
+    manage_etc_hosts: true
+    hostname: ${hostname}
+    users:
+      - default
+      - name: ${user}
+        plain_text_passwd: ${password}
+        groups: users
+        sudo: ALL=(ALL) NOPASSWD:ALL
+        lock_passwd: false
+        shell: /bin/bash
+        ssh_authorized_keys:
+          ${ssh_key}
+    package_upgrade: true
+    packages:
+      ${packages}
