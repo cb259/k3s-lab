@@ -131,6 +131,11 @@ variable "vm_vlan" {
   type        = string
 }
 
+variable "clone_id" {
+  description = "The VM ID of the VM template to be cloned"
+  type        = string
+}
+
 # Cloud-Init template variables
 variable "fqdn" {
   description = "VM domain"
