@@ -42,6 +42,9 @@ if [ $INSTALL_MODE = "server" ]; then
         # Set permissions on k3s.yaml to allow kubectly without sudo
         echo "- CHMOD 644 on k3s.yaml to allow kubectl without sudo"
         sudo chmod 644 /etc/rancher/k3s/k3s.yaml
+
+        # Exit successfully
+        exit 0
     else
         # Create K3S server & join existing cluser
         echo "- Starting: Server install (Existing cluser)"
@@ -52,12 +55,18 @@ if [ $INSTALL_MODE = "server" ]; then
         # Set permissions on k3s.yaml to allow kubectly without sudo
         echo "- CHMOD 644 on k3s.yaml to allow kubectl without sudo"
         sudo chmod 644 /etc/rancher/k3s/k3s.yaml
+
+        # Exit successfully
+        exit 0
     fi
 elif [ $INSTALL_MODE = "agent" ]; then
     # Create K3S agent & join existing cluser
     echo "- Starting: Agent install"
     curl -sfL https://get.k3s.io | K3S_TOKEN=$K3S_TOKEN sh -s - agent \
         --server https://$SERVER_IP:6443
+    
+    # Exit successfully
+    exit 0
 else
     echo "Invalid install mode"
     exit 1

@@ -175,3 +175,9 @@ variable "k3s_token" {
   default     = ""
   sensitive   = true
 }
+
+variable "k3s_server" {
+  description = "IP address of the K3S server for install"
+  type        = string
+  default     = ""
+}

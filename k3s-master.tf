@@ -110,7 +110,7 @@ resource "proxmox_virtual_environment_vm" "master_vms" {
 
   # Execute K3S Script
   provisioner "remote-exec" {
-    inline = ["bash /tmp/k3s-install.sh ${count.index} server ${var.k3s_token}"]
+    inline = ["bash /tmp/k3s-install.sh ${count.index} server ${var.k3s_token} ${var.k3s_server}"]
 
     connection {
       type     = "ssh"
@@ -201,7 +201,7 @@ resource "proxmox_virtual_environment_vm" "agent_vms" {
 
   # Execute K3S Script
   provisioner "remote-exec" {
-    inline = ["bash /tmp/k3s-install.sh ${count.index} agent ${var.k3s_token}"]
+    inline = ["bash /tmp/k3s-install.sh ${count.index} agent ${var.k3s_token} ${var.k3s_server}"]
 
     connection {
       type     = "ssh"
