@@ -26,51 +26,59 @@ OTF_COUNT=$1
 INSTALL_MODE=$2
 K3S_TOKEN=$3
 SERVER_IP=$4
-echo "- Variables set"
+echo "[INFO] Variables set"
 
 # Check the install mode to determine node type
 if [ $INSTALL_MODE = "server" ]; then
+    echo "[INFO] Starting server install"
+
     # If count is 0 then assume cluster init
     echo "- Running in server install mode"
     if [ $OTF_COUNT -eq 0 ]; then
         # Create K3S server & initialize cluser
-        echo "- Starting: Cluster initialization install"
+        echo "[INFO] Starting: Cluster initialization install"
         curl -sfL https://get.k3s.io | K3S_TOKEN=$K3S_TOKEN sh -s - server \
             --cluster-init \
             --node-taint CriticalAddonsOnly=true:NoExecute
         
         # Set permissions on k3s.yaml to allow kubectly without sudo
-        echo "- CHMOD 644 on k3s.yaml to allow kubectl without sudo"
+        echo "[INFO] CHMOD 644 on k3s.yaml to allow kubectl without sudo"
         sudo chmod 644 /etc/rancher/k3s/k3s.yaml
 
         # Exit successfully
         exit 0
+        echo "[INFO] Exiting successfully"
     else
         # Create K3S server & join existing cluser
-        echo "- Starting: Server install (Existing cluser)"
+        echo "[INFO] Starting: Server install (Existing cluser)"
         curl -sfL https://get.k3s.io | K3S_TOKEN=$K3S_TOKEN sh -s - server \
             --server https://$SERVER_IP:6443 \
             --node-taint CriticalAddonsOnly=true:NoExecute
         
         # Set permissions on k3s.yaml to allow kubectly without sudo
-        echo "- CHMOD 644 on k3s.yaml to allow kubectl without sudo"
+        echo "[INFO] CHMOD 644 on /etc/rancher/k3s/k3s.yaml to allow kubectl without sudo"
         sudo chmod 644 /etc/rancher/k3s/k3s.yaml
 
         # Exit successfully
         exit 0
+        echo "[INFO] Exiting successfully"
     fi
 elif [ $INSTALL_MODE = "agent" ]; then
+    echo "[INFO] Starting agent install"
+    
     # Create K3S agent & join existing cluser
-    echo "- Starting: Agent install"
+    echo "[INFO] Starting: Agent install"
     curl -sfL https://get.k3s.io | K3S_TOKEN=$K3S_TOKEN sh -s - agent \
         --server https://$SERVER_IP:6443
     
     # Exit successfully
     exit 0
+    echo "[INFO] Exiting successfully"
 else
-    echo "Invalid install mode"
+    echo "[ERROR] Invalid install mode"
     exit 1
 fi
 
 # Exit successfully
 exit 0
+echo "[INFO] Exiting successfully"

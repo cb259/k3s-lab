@@ -136,6 +136,11 @@ variable "clone_id" {
   type        = string
 }
 
+variable "vm_memory" {
+  description = "Memory to allocate to the VM"
+  type        = string
+}
+
 # Cloud-Init template variables
 variable "fqdn" {
   description = "VM domain"

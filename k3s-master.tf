@@ -13,8 +13,9 @@
 # While this will extend the time to execute, it's the best solution I
 # have come across to date.
 #########################################################################
-# Upload the cloud-init user template to the Proxmox node after replacing the template variables.
-resource "proxmox_virtual_environment_file" "cloudinit_user" {
+
+# Create and upload master cloud-init file
+resource "proxmox_virtual_environment_file" "cloudinit_user_master" {
   count        = "${var.count_master_vms}"
   content_type = "snippets"
   datastore_id = "Snippets"
@@ -29,7 +30,7 @@ resource "proxmox_virtual_environment_file" "cloudinit_user" {
       packages = jsonencode(var.packages),
     })
 
-    file_name  = "k3s-ci-user.yaml"
+    file_name  = "k3s-ci-user-master.yaml"
   }
 }
 
@@ -59,8 +60,8 @@ resource "proxmox_virtual_environment_vm" "master_vms" {
   }
 
   memory {
-    dedicated = 2048
-    floating  = 2048 # set equal to dedicated to enable ballooning
+    dedicated = "${var.vm_memory}"
+    floating  = "${var.vm_memory}" # set equal to dedicated to enable ballooning
   }
 
   vga {
@@ -87,7 +88,7 @@ resource "proxmox_virtual_environment_vm" "master_vms" {
       servers = "${var.vm_dns_ips}"
     }
     
-    user_data_file_id = proxmox_virtual_environment_file.cloudinit_user[count.index].id
+    user_data_file_id = proxmox_virtual_environment_file.cloudinit_user_master[count.index].id
   }
 
   network_device {
@@ -118,6 +119,26 @@ resource "proxmox_virtual_environment_vm" "master_vms" {
       private_key = file("~/.ssh/id_rsa")
       host     = trim(var.vm_master_ips[count.index], "/24")
     }
+  }
+}
+
+# Create and upload agent cloud-init file
+resource "proxmox_virtual_environment_file" "cloudinit_user_agent" {
+  count        = "${var.count_agent_vms}"
+  content_type = "snippets"
+  datastore_id = "Snippets"
+  node_name    = "${var.target_nodes[count.index]}"
+
+  source_raw {
+    data = templatefile("./ci-user.yaml", {
+      hostname = var.hostnames_agent[count.index],
+      user     = var.user,
+      password = var.user_password,
+      ssh_key  = jsonencode(var.user_ssh_key),
+      packages = jsonencode(var.packages),
+    })
+
+    file_name  = "k3s-ci-user-agent.yaml"
   }
 }
 
@@ -178,7 +199,7 @@ resource "proxmox_virtual_environment_vm" "agent_vms" {
       servers = "${var.vm_dns_ips}"
     }
     
-    user_data_file_id = proxmox_virtual_environment_file.cloudinit_user[count.index].id
+    user_data_file_id = proxmox_virtual_environment_file.cloudinit_user_agent[count.index].id
   }
 
   network_device {
